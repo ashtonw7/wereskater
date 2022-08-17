@@ -4,8 +4,8 @@ export var speed = 400
 export var max_speed = 600
 export var min_speed = 300
 export var ramp_threshold = 500
-export var jump_speed = -400
-export var ramp_jump_speed_multiplier = 2
+export var jump_speed = -200
+export var ramp_jump_speed_multiplier = 4
 export var gravity = 2500
 
 var velocity = Vector2.ZERO
@@ -16,7 +16,8 @@ enum States {
 	JUMPING,
 	PUSHING,
 	FALLING,
-	ONRAMP
+	ONRAMP,
+	WIPEOUT
 }
 
 enum Directions {
@@ -27,6 +28,7 @@ enum Directions {
 onready var state = States.STATIONARY
 onready var dir = Directions.LEFT
 onready var prev_pos = position
+onready var prev_prev_state = States.STATIONARY
 
 var just_started_flag = false
 var hit_ramp_flag = false
@@ -83,7 +85,7 @@ func is_on_ramp():
 	return false
 
 func is_on_ramp_and_valid():
-	return position.y < prev_pos.y and is_on_ramp() and velocity.x >= ramp_threshold
+	return position.y < prev_pos.y and is_on_ramp() and velocity.x >= ramp_threshold and state != States.WIPEOUT
 
 func handle_slowdown():
 	if $Slowdown.is_stopped() and is_on_floor_ray() and state == States.MOVING:
@@ -101,6 +103,7 @@ func handle_falling():
 
 func update_prevs():
 	if state != States.ONRAMP:
+		prev_prev_state = prev_state
 		prev_state = state
 		prev_speed = velocity.x
 	prev_pos = position	
@@ -125,33 +128,39 @@ func add_gravity(delta):
 func clamp_speed():
 	if not hit_ramp_flag:
 		velocity.x = clamp(velocity.x, min_speed, max_speed)
+		
+func handle_wipeout():
+	if is_on_ramp_and_valid() and prev_prev_state == States.FALLING:
+		state = States.WIPEOUT
+		velocity = Vector2.ZERO		
+		
+	if is_on_wall():
+		state = States.WIPEOUT
+		velocity = Vector2.ZERO		
 				
 func game_logic(delta):
 	handle_slowdown()
 	handle_falling()
 	handle_ramp()
-	handle_ramp()
 	handle_landed_ramp()
 	add_gravity(delta)
+	handle_wipeout()
+	
 	clamp_speed()
 	update_prevs()
-	
-	velocity = move_and_slide(velocity, Vector2.UP)
 
-	if is_on_wall():
-		state = States.STATIONARY
-		velocity = Vector2.ZERO
+	velocity = move_and_slide(velocity, Vector2.UP)
 
 func _physics_process(delta):
 	_debug(delta)
 	
 	get_input()
-	if state != States.STATIONARY:
+	if state != States.STATIONARY and state != States.WIPEOUT:
 		game_logic(delta)
 
 
 func _on_PushingCooldown_timeout():
-	if state != States.ONRAMP:
+	if state == States.PUSHING:
 		state = States.MOVING
 
 func _on_Slowdown_timeout():
