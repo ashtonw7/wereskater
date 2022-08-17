@@ -59,9 +59,9 @@ func get_input():
 		just_started_flag = false		
 
 func game_logic(delta):
-	if $Slowdown.time_left == 0 and int(position.y) == int(prev_pos.y) and state != States.PUSHING:
+	if $Slowdown.is_stopped() and is_on_floor() and state != States.PUSHING:
 		$Slowdown.start()
-	elif int(position.y) < int(prev_pos.y):
+	elif state != States.MOVING:
 		$Slowdown.stop()
 	
 	if state != States.FALLING and position.y > prev_pos.y and not is_on_floor():
@@ -99,4 +99,4 @@ func _on_Slowdown_timeout():
 
 func _on_FallBoost_timeout():
 	if velocity.x < max_speed:
-		velocity.x += 20
+		velocity.x += 10

@@ -38,7 +38,7 @@ wait_time = 0.6
 one_shot = true
 
 [node name="FallBoost" type="Timer" parent="."]
-wait_time = 0.2
+wait_time = 0.5
 
 [node name="Slowdown" type="Timer" parent="."]
 one_shot = true
