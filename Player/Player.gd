@@ -3,10 +3,12 @@ extends KinematicBody2D
 export var speed = 400
 export var max_speed = 600
 export var min_speed = 300
-export var ramp_threshold = 500
+export var ramp_threshold = 0
 export var jump_speed = -200
 export var ramp_jump_speed_multiplier = 4
 export var gravity = 2500
+export var ramp_grav_decr = 0.8
+onready var start_pos = position
 
 var velocity = Vector2.ZERO
 
@@ -25,14 +27,26 @@ enum Directions {
 	RIGHT
 }
 
+enum FlipDirs {
+	LEFT,
+	DOWN,
+	RIGHT,
+	UP
+}
+
 onready var state = States.STATIONARY
+onready var flip_dir = FlipDirs.UP
 onready var dir = Directions.LEFT
 onready var prev_pos = position
 onready var prev_prev_state = States.STATIONARY
 
+var rng = RandomNumberGenerator.new()
+
 var just_started_flag = false
 var hit_ramp_flag = false
 var landed_ramp_flag = false
+var picked_flip_letter_flag = false
+var next_letter = ''
 
 var prev_state = States.STATIONARY
 var prev_speed = 0
@@ -46,7 +60,7 @@ func _debug(_delta):
 	
 
 func _ready():
-	pass
+	rng.randomize()
 
 func is_on_floor_ray():
 	if $GroundCheck.is_colliding():
@@ -61,9 +75,9 @@ func get_input():
 		velocity.x = speed
 		just_started_flag = true
 	
-	elif state == States.MOVING and Input.is_action_just_pressed("push"):
+	elif Input.is_action_just_pressed("push") and state == States.MOVING and is_on_floor_ray():
 		state = States.PUSHING
-		velocity.x = clamp(velocity.x + 100, min_speed, max_speed)
+		velocity.x = clamp(velocity.x + 50, min_speed, max_speed)
 		$PushingCooldown.start()
 	
 	if Input.is_action_just_pressed("jump") and not just_started_flag:
@@ -115,11 +129,14 @@ func handle_ramp():
 		hit_ramp_flag = true
 	if not is_on_floor_ray() and hit_ramp_flag and velocity.y >= 0 and state != States.FALLING:
 		velocity.y = jump_speed * ramp_jump_speed_multiplier
+		gravity = gravity * ramp_grav_decr
 
 func handle_landed_ramp():
 	if state != States.ONRAMP and is_on_floor_ray() and hit_ramp_flag:
 		velocity.x = prev_speed
+		gravity = gravity / ramp_grav_decr
 		hit_ramp_flag = false
+		Engine.time_scale = 1
 
 func add_gravity(delta):
 	if not is_on_floor_ray():
@@ -129,21 +146,73 @@ func clamp_speed():
 	if not hit_ramp_flag:
 		velocity.x = clamp(velocity.x, min_speed, max_speed)
 		
-func handle_wipeout():
+func check_wipeout():
 	if is_on_ramp_and_valid() and prev_prev_state == States.FALLING:
 		state = States.WIPEOUT
-		velocity = Vector2.ZERO		
 		
 	if is_on_wall():
 		state = States.WIPEOUT
-		velocity = Vector2.ZERO		
+		
+	if is_on_floor() and flip_dir != FlipDirs.UP:
+		state = States.WIPEOUT
+
+func reset_player():
+	Engine.time_scale = 1
+	$Sprite.rotation = 0
+	hit_ramp_flag = false
+	flip_dir = FlipDirs.UP
+	$FlipLabel.text = ""
+	
+	$Slowdown.stop()
+	$FallBoost.stop()
+	
+	velocity = Vector2.ZERO
+	position = start_pos
+	state = States.STATIONARY
+		
+func handle_wipeout():
+	if state == States.WIPEOUT:
+		reset_player()
+		
+func handle_flips():
+	if not is_on_floor_ray() and hit_ramp_flag:
+		Engine.time_scale = 0.3
+		
+		if not picked_flip_letter_flag:
+			picked_flip_letter_flag = true
+			next_letter = char(rng.randi_range(97, 122))
+			print(next_letter)
+			$FlipLabel.text = next_letter.to_upper()
+		
+		if Input.is_action_just_pressed(next_letter) and flip_dir == FlipDirs.UP:
+			flip_dir = FlipDirs.LEFT
+			$Sprite.rotation_degrees = -90
+			picked_flip_letter_flag = false
+		elif Input.is_action_just_pressed(next_letter) and flip_dir == FlipDirs.LEFT:
+			flip_dir = FlipDirs.DOWN
+			$Sprite.rotation_degrees = -180
+			picked_flip_letter_flag = false
+		elif Input.is_action_just_pressed(next_letter) and flip_dir == FlipDirs.DOWN:
+			flip_dir = FlipDirs.RIGHT
+			$Sprite.rotation_degrees = -270
+			picked_flip_letter_flag = false
+		elif Input.is_action_just_pressed(next_letter) and flip_dir == FlipDirs.RIGHT:
+			flip_dir = FlipDirs.UP
+			$Sprite.rotation_degrees = 0
+			picked_flip_letter_flag = false
+
+	else:
+		picked_flip_letter_flag = false
+		$FlipLabel.text = ""
 				
 func game_logic(delta):
 	handle_slowdown()
 	handle_falling()
 	handle_ramp()
 	handle_landed_ramp()
+	handle_flips()
 	add_gravity(delta)
+	check_wipeout()
 	handle_wipeout()
 	
 	clamp_speed()
