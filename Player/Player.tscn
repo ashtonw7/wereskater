@@ -10,7 +10,7 @@ height = 7.0
 [sub_resource type="RayShape2D" id=1]
 length = 31.5
 
-[node name="KinematicBody2D" type="KinematicBody2D"]
+[node name="Player" type="KinematicBody2D"]
 script = ExtResource( 2 )
 
 [node name="State" type="Label" parent="."]
@@ -45,23 +45,8 @@ cast_to = Vector2( 0, 39 )
 offset = Vector2( 200, 0 )
 current = true
 
-[node name="PushingCooldown" type="Timer" parent="."]
-wait_time = 0.2
-one_shot = true
-
-[node name="FallBoost" type="Timer" parent="."]
-wait_time = 0.5
-
-[node name="Slowdown" type="Timer" parent="."]
-wait_time = 0.3
-one_shot = true
-
 [node name="FlipLabel" type="Label" parent="."]
 margin_left = -18.0
 margin_top = -72.0
 margin_right = 18.0
 margin_bottom = -47.0
-
-[connection signal="timeout" from="PushingCooldown" to="." method="_on_PushingCooldown_timeout"]
-[connection signal="timeout" from="FallBoost" to="." method="_on_FallBoost_timeout"]
-[connection signal="timeout" from="Slowdown" to="." method="_on_Slowdown_timeout"]
