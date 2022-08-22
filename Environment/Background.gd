@@ -9,4 +9,5 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
-	modulate.a = (255 - (player.position.x / end_pos * 255)) / 255 - 0.1
+	if get_parent().has_node("Player"):
+		modulate.a = (255 - (player.position.x / end_pos * 255)) / 255 - 0.1

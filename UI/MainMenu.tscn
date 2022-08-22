@@ -1,0 +1,225 @@
+[gd_scene load_steps=12 format=2]
+
+[ext_resource path="res://Assets/Fonts/SK8ORDYE.TTF" type="DynamicFontData" id=1]
+[ext_resource path="res://Menus/LevelSelect.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Assets/Fonts/MAYHEM-Regular.otf" type="DynamicFontData" id=3]
+[ext_resource path="res://Menus/LevelSelect.gd" type="Script" id=4]
+[ext_resource path="res://UI/MainMenu.gd" type="Script" id=5]
+[ext_resource path="res://Assets/Fonts/LinkStart.otf" type="DynamicFontData" id=6]
+
+[sub_resource type="DynamicFont" id=3]
+size = 25
+outline_size = 2
+outline_color = Color( 0, 0, 0, 1 )
+font_data = ExtResource( 6 )
+
+[sub_resource type="DynamicFont" id=5]
+size = 28
+outline_size = 2
+outline_color = Color( 0, 0, 0, 1 )
+font_data = ExtResource( 6 )
+
+[sub_resource type="DynamicFont" id=4]
+size = 30
+outline_size = 2
+outline_color = Color( 0, 0, 0, 1 )
+font_data = ExtResource( 3 )
+
+[sub_resource type="DynamicFont" id=1]
+size = 150
+outline_size = 2
+outline_color = Color( 0, 0, 0, 1 )
+font_data = ExtResource( 1 )
+
+[sub_resource type="DynamicFont" id=2]
+size = 40
+font_data = ExtResource( 3 )
+
+[node name="MainMenu" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 5 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+margin_right = 1023.0
+margin_bottom = 600.0
+color = Color( 0.180392, 0.180392, 0.180392, 1 )
+
+[node name="Rules" type="Label" parent="."]
+margin_left = 132.0
+margin_top = 355.0
+margin_right = 897.0
+margin_bottom = 595.0
+custom_fonts/font = SubResource( 3 )
+text = "You're a werewolf skater! Skate through the level during the day, then turn back
+and do it again in Werewolf mode when the full moon hits! Try to get a high score!
+
+Press Space to jump.
+
+When you hit a ramp, type the word above your head to do flips!
+
+Press 'D' to start/stop a manual. Use 'A' and 'S' to stay balanced!
+"
+
+[node name="Best" type="Label" parent="."]
+margin_left = 132.0
+margin_top = 255.0
+margin_right = 250.0
+margin_bottom = 285.0
+custom_fonts/font = SubResource( 5 )
+text = "BEST"
+align = 1
+valign = 2
+
+[node name="Best2" type="Label" parent="."]
+margin_left = 285.0
+margin_top = 255.0
+margin_right = 403.0
+margin_bottom = 285.0
+custom_fonts/font = SubResource( 5 )
+text = "BEST"
+align = 1
+valign = 2
+
+[node name="Best3" type="Label" parent="."]
+margin_left = 446.0
+margin_top = 255.0
+margin_right = 564.0
+margin_bottom = 285.0
+custom_fonts/font = SubResource( 5 )
+text = "BEST"
+align = 1
+valign = 2
+
+[node name="Best4" type="Label" parent="."]
+margin_left = 603.0
+margin_top = 255.0
+margin_right = 721.0
+margin_bottom = 285.0
+custom_fonts/font = SubResource( 5 )
+text = "BEST"
+align = 1
+valign = 2
+
+[node name="Best5" type="Label" parent="."]
+margin_left = 764.0
+margin_top = 255.0
+margin_right = 882.0
+margin_bottom = 285.0
+custom_fonts/font = SubResource( 5 )
+text = "BEST"
+align = 1
+valign = 2
+
+[node name="HighScores" type="Control" parent="."]
+margin_left = 764.0
+margin_top = 285.0
+margin_right = 804.0
+margin_bottom = 325.0
+
+[node name="Level1Score" type="Label" parent="HighScores"]
+margin_left = -632.0
+margin_right = -514.0
+margin_bottom = 36.0
+custom_fonts/font = SubResource( 4 )
+text = "0"
+align = 1
+
+[node name="Level2Score" type="Label" parent="HighScores"]
+margin_left = -479.0
+margin_right = -361.0
+margin_bottom = 36.0
+custom_fonts/font = SubResource( 4 )
+text = "0"
+align = 1
+
+[node name="Level3Score" type="Label" parent="HighScores"]
+margin_left = -318.0
+margin_right = -200.0
+margin_bottom = 36.0
+custom_fonts/font = SubResource( 4 )
+text = "0"
+align = 1
+
+[node name="Level4Score" type="Label" parent="HighScores"]
+margin_left = -161.0
+margin_right = -43.0
+margin_bottom = 36.0
+custom_fonts/font = SubResource( 4 )
+text = "0"
+align = 1
+
+[node name="Level5Score" type="Label" parent="HighScores"]
+margin_right = 118.0
+margin_bottom = 36.0
+custom_fonts/font = SubResource( 4 )
+text = "0"
+align = 1
+
+[node name="Label" type="Label" parent="."]
+margin_left = 157.0
+margin_top = 21.0
+margin_right = 852.0
+margin_bottom = 192.0
+custom_fonts/font = SubResource( 1 )
+text = "WERESKATER"
+
+[node name="Level1" parent="." instance=ExtResource( 2 )]
+margin_left = 132.0
+margin_top = 192.0
+margin_right = -774.0
+margin_bottom = -290.0
+rect_pivot_offset = Vector2( 59, 59 )
+custom_fonts/font = SubResource( 2 )
+text = "Level 1"
+script = ExtResource( 4 )
+
+[node name="Level2" parent="." instance=ExtResource( 2 )]
+margin_left = 285.0
+margin_top = 192.0
+margin_right = -621.0
+margin_bottom = -290.0
+rect_pivot_offset = Vector2( 59, 59 )
+custom_fonts/font = SubResource( 2 )
+text = "Level 2"
+script = ExtResource( 4 )
+level = 2
+
+[node name="Level3" parent="." instance=ExtResource( 2 )]
+margin_left = 446.0
+margin_top = 192.0
+margin_right = -460.0
+margin_bottom = -290.0
+rect_pivot_offset = Vector2( 59, 59 )
+custom_fonts/font = SubResource( 2 )
+text = "Level 3"
+script = ExtResource( 4 )
+level = 3
+
+[node name="Level4" parent="." instance=ExtResource( 2 )]
+margin_left = 603.0
+margin_top = 192.0
+margin_right = -303.0
+margin_bottom = -290.0
+rect_pivot_offset = Vector2( 59, 59 )
+custom_fonts/font = SubResource( 2 )
+text = "Level 4"
+script = ExtResource( 4 )
+level = 4
+
+[node name="Level5" parent="." instance=ExtResource( 2 )]
+margin_left = 764.0
+margin_top = 192.0
+margin_right = -142.0
+margin_bottom = -290.0
+rect_pivot_offset = Vector2( 59, 59 )
+custom_fonts/font = SubResource( 2 )
+text = "Level 5"
+script = ExtResource( 4 )
+level = 5
+
+[connection signal="pressed" from="Level1" to="Level1" method="_on_Level1_pressed"]
+[connection signal="pressed" from="Level2" to="Level2" method="_on_Level1_pressed"]
+[connection signal="pressed" from="Level3" to="Level3" method="_on_Level1_pressed"]
+[connection signal="pressed" from="Level4" to="Level4" method="_on_Level1_pressed"]
+[connection signal="pressed" from="Level5" to="Level5" method="_on_Level1_pressed"]

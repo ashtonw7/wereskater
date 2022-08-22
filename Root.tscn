@@ -1,3 +1,55 @@
-[gd_scene format=2]
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://Assets/Fonts/MAYHEM-Regular.otf" type="DynamicFontData" id=1]
+[ext_resource path="res://Root.gd" type="Script" id=2]
+[ext_resource path="res://Assets/Sounds/428131__apenguin73__menu-sound-1.wav" type="AudioStream" id=3]
+[ext_resource path="res://Assets/Sounds/377775__g-m-d-three__scratch-g-004.wav" type="AudioStream" id=4]
+[ext_resource path="res://Assets/Sounds/POL-halloween-rnr-short.wav" type="AudioStream" id=5]
+[ext_resource path="res://Assets/Sounds/612639__newlocknew__heart-beat-2-strong-pounding-blood-flows-in-the-veins-6lrs.wav" type="AudioStream" id=6]
+[ext_resource path="res://Assets/Sounds/315725__renovatio871__tonal-impact-e.wav" type="AudioStream" id=7]
+[ext_resource path="res://Assets/Sounds/515692__acekat13x31__adriana-lopez-skateboard-wheels.mp3" type="AudioStream" id=8]
+[ext_resource path="res://Assets/Sounds/499699__phonosupf__howling.wav" type="AudioStream" id=9]
+
+[sub_resource type="DynamicFont" id=1]
+font_data = ExtResource( 1 )
 
 [node name="Root" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="Thump" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 7 )
+max_distance = 1e+07
+
+[node name="Heartbeat" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 6 )
+volume_db = 9.613
+max_distance = 1e+07
+
+[node name="BGM" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 5 )
+volume_db = -6.118
+max_distance = 1e+07
+
+[node name="Scratch" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 4 )
+volume_db = 11.361
+max_distance = 1e+07
+
+[node name="Menu" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 3 )
+volume_db = 8.739
+max_distance = 1e+07
+
+[node name="Howl" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 9 )
+
+[node name="Skate" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 8 )
+max_distance = 1e+09
+
+[node name="Label" type="Label" parent="."]
+margin_left = 590.0
+margin_top = 12.0
+margin_right = 630.0
+margin_bottom = 26.0
+custom_fonts/font = SubResource( 1 )

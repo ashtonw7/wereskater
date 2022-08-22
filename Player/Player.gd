@@ -8,9 +8,11 @@ export var jump_speed = -800
 export var ramp_jump_speed_multiplier = 1
 export var gravity = 2500
 export var ramp_grav_decr = 0.8
-export var werewolf_speed_mult = 1.3
+export var werewolf_speed_mult = 1.6
 export var flip_slowdown_scale = 0.3
 onready var start_pos = position
+
+signal level_complete
 
 var velocity = Vector2.ZERO
 
@@ -20,7 +22,8 @@ enum States {
 	JUMPING,
 	FALLING,
 	ONRAMP,
-	WIPEOUT
+	WIPEOUT,
+	MANUAL
 }
 
 enum Directions {
@@ -41,6 +44,8 @@ onready var dir = Directions.LEFT
 onready var prev_pos = position
 onready var prev_prev_state = States.STATIONARY
 
+onready var sprites = get_node("Sprites")
+
 var rng = RandomNumberGenerator.new()
 
 var just_started_flag = false
@@ -59,6 +64,10 @@ var werewolf_mode = false
 var prev_state = States.STATIONARY
 var prev_speed = 0
 
+var flip_count = 1
+
+var score = 0
+
 var test = 0
 
 func _debug(_delta):
@@ -69,21 +78,59 @@ func _debug(_delta):
 
 func _ready():
 	rng.randomize()
+	$ManualMeter.connect("manual_wipeout", self, "manual_wipeout")
+	$ManualMeter.connect("update_score", self, "update_score")
+	get_parent().get_node("LevelEnd").get_node("CollisionShape2D").connect("level_end", self, "level_end")
+
+
+func level_end():
+	emit_signal("level_complete", true)
+
+func update_score(add_score):
+	score += add_score
+	get_parent().get_node("CanvasLayer").get_node("Score").get_node("Score").text = str(score)
 
 func is_on_floor_ray():
 	if $GroundCheck.is_colliding():
 		return true
 	else:
 		return false
+
+func start_manual():
+	sprites.rotation_degrees = -15
+	$ManualMeter.visible = true
+	$ManualMeter.start_manual()
+	if not get_parent().get_parent().get_node("Heartbeat").playing:
+		get_parent().get_parent().get_node("Heartbeat").play()
+
+func end_manual():
+	get_parent().get_parent().get_node("Heartbeat").stop()
+	sprites.rotation_degrees = 0	
+	$ManualMeter.visible = false
+	$ManualMeter.end_manual()
 	
+func check_end_manual():
+	if state == States.MANUAL and not is_on_floor_ray():
+		end_manual()
+	
+func manual_wipeout():
+	state = States.WIPEOUT
+	handle_wipeout()
+
 func get_input():
 	if state == States.STATIONARY and Input.is_action_just_pressed("start"):
+		$Start.visible = false
 		state = States.MOVING
 		velocity.x = speed
+		$TimeScore.start()
 		just_started_flag = true
 	
-	elif Input.is_action_just_pressed("push") and state == States.MOVING and is_on_floor_ray():
-		pass
+	elif Input.is_action_just_pressed("down") and state == States.MOVING and is_on_floor_ray():
+		state = States.MANUAL
+		start_manual()
+	elif Input.is_action_just_pressed("down") and state == States.MANUAL and is_on_floor_ray():
+		state = States.MOVING
+		end_manual()
 	
 	if Input.is_action_just_pressed("jump") and not just_started_flag:
 		if is_on_floor_ray():
@@ -94,6 +141,10 @@ func get_input():
 
 func enter_werewolf_mode():
 	werewolf_mode = true
+	sprites.get_node("Player").visible = false
+	sprites.get_node("Werewolf").visible = true
+
+	$ManualMeter.degree_incr = 2.5
 	$Camera2D.offset.x = -200
 
 func is_on_ramp():
@@ -132,14 +183,32 @@ func update_prevs():
 	
 func handle_ramp():
 	if is_on_ramp_and_valid() and state != States.ONRAMP:
+		if state == States.MANUAL:
+			end_manual()
 		state = States.ONRAMP
+		if not werewolf_mode:
+			sprites.rotation_degrees = -35
+			sprites.rotation_degrees = -35
+			sprites.rotation_degrees = -35
+		else:
+			sprites.rotation_degrees = 35
+			sprites.rotation_degrees = 35
+			sprites.rotation_degrees = 35
 		hit_ramp_flag = true
+
 	if not is_on_floor_ray() and hit_ramp_flag and velocity.y >= 0 and state != States.FALLING:
 		velocity.y = jump_speed * ramp_jump_speed_multiplier
 		gravity = gravity * ramp_grav_decr
 
 func handle_landed_ramp():
 	if state != States.ONRAMP and is_on_floor_ray() and hit_ramp_flag:
+		sprites.rotation_degrees = 0
+		sprites.rotation_degrees = 0
+		sprites.rotation_degrees = 0
+		get_parent().get_parent().get_node("Heartbeat").stop()
+		get_parent().get_parent().get_node("BGM").volume_db = -6.118
+		reset_flip_letters()
+		flip_count = 1
 		velocity.x = prev_speed
 		gravity = gravity / ramp_grav_decr
 		hit_ramp_flag = false
@@ -157,8 +226,8 @@ func clamp_speed():
 			velocity.x = clamp(velocity.x, max_speed * werewolf_speed_mult * -1, max_speed * werewolf_speed_mult * -1)
 		
 func check_wipeout():
-	if is_on_ramp_and_valid() and prev_prev_state == States.FALLING:
-		state = States.WIPEOUT
+#	if is_on_ramp_and_valid() and prev_prev_state == States.FALLING:
+#		state = States.WIPEOUT
 		
 	if is_on_wall():
 		state = States.WIPEOUT
@@ -166,18 +235,43 @@ func check_wipeout():
 	if is_on_floor() and flip_dir != FlipDirs.UP:
 		state = States.WIPEOUT
 
+func reset_flip_letters():
+	$LetterSquare1.visible = false
+	$LetterSquare2.visible = false
+	$LetterSquare3.visible = false
+	$LetterSquare4.visible = false
+	
+	$LetterSquare1.color = Color(0, 0, 1, 1)
+	$LetterSquare2.color = Color(0, 0, 1, 1)
+	$LetterSquare3.color = Color(0, 0, 1, 1)
+	$LetterSquare4.color = Color(0, 0, 1, 1)
+
 func reset_player():
+	$TimeScore.stop()
+	get_parent().get_parent().get_node("Heartbeat").stop()
+	get_parent().get_parent().get_node("BGM").volume_db = -6.118
+	sprites.get_node("Werewolf").visible = false
+	sprites.get_node("Player").visible = true
+	score = 0
+	flip_count = 1
 	Engine.time_scale = 1
-	$Sprite.rotation = 0
+	sprites.rotation = 0
 	hit_ramp_flag = false
 	flip_dir = FlipDirs.UP
 	$FlipLabel.text = ""
+	$ManualMeter.degree_incr = 2.5
+	reset_flip_letters()
+	
+	$ManualMeter.visible = false	
+	$ManualMeter.end_manual()
+
 	
 	$Camera2D.offset.x = 200
 	
 	velocity = Vector2.ZERO
 	werewolf_mode = false
 	position = start_pos
+	$Start.visible = true
 	state = States.STATIONARY
 	
 	curr_letter = 0
@@ -186,6 +280,7 @@ func reset_player():
 func handle_wipeout():
 	if state == States.WIPEOUT:
 		reset_player()
+		emit_signal("level_complete", false)
 
 func get_rand_flip_word():
 	var flip_word = flip_words[rng.randi() % len(flip_words)]
@@ -196,52 +291,73 @@ func get_rand_flip_word():
 
 func handle_flips():
 	if not is_on_floor_ray() and hit_ramp_flag:
+		if not get_parent().get_parent().get_node("Heartbeat").playing:
+			get_parent().get_parent().get_node("Heartbeat").play()
+			get_parent().get_parent().get_node("BGM").volume_db = -15
 		Engine.time_scale = flip_slowdown_scale
 		
 		if not picked_flip_letters_flag:
 			picked_flip_letters_flag = true
+			reset_flip_letters()
 			var flip_word = get_rand_flip_word()
 			prev_flip_word = flip_word
 			var letter1 = flip_word[0]
 			var letter2 = flip_word[1]
 			var letter3 = flip_word[2]
 			var letter4 = flip_word[3]
+			
+			$LetterSquare1.get_node("Label").text = letter1
+			$LetterSquare2.get_node("Label").text = letter2
+			$LetterSquare3.get_node("Label").text = letter3
+			$LetterSquare4.get_node("Label").text = letter4
+			
+			$LetterSquare1.visible = true
+			$LetterSquare2.visible = true
+			$LetterSquare3.visible = true
+			$LetterSquare4.visible = true
+			
 			letters = [letter1, letter2, letter3, letter4]
 			curr_letter = 0
 			next_letter = letters[curr_letter]
-			
-			var strlabel = ""
-			for letter in letters:
-				strlabel += letter + " "
-			$FlipLabel.text = strlabel
 		
 		if Input.is_action_just_pressed(next_letter) and flip_dir == FlipDirs.UP:
+			get_node("LetterSquare" + str(curr_letter + 1)).color = Color(0, 1, 0, 1)
 			flip_dir = FlipDirs.LEFT
-			$Sprite.rotation_degrees = -90
+			sprites.rotation_degrees = -90
 			
 			curr_letter += 1
 			next_letter = letters[curr_letter % len(letters)]
+			get_parent().get_parent().get_node("Thump").play()
 			
 		elif Input.is_action_just_pressed(next_letter) and flip_dir == FlipDirs.LEFT:
+			get_node("LetterSquare" + str(curr_letter + 1)).color = Color(0, 1, 0, 1)
 			flip_dir = FlipDirs.DOWN
-			$Sprite.rotation_degrees = -180
+			sprites.rotation_degrees = -180
 
 			curr_letter += 1
 			next_letter = letters[curr_letter % len(letters)]
+			get_parent().get_parent().get_node("Thump").play()			
 			
 		elif Input.is_action_just_pressed(next_letter) and flip_dir == FlipDirs.DOWN:
+			get_node("LetterSquare" + str(curr_letter + 1)).color = Color(0, 1, 0, 1)
 			flip_dir = FlipDirs.RIGHT
-			$Sprite.rotation_degrees = -270
+			sprites.rotation_degrees = -270
 
 			curr_letter += 1
 			next_letter = letters[curr_letter % len(letters)]
-			
+			get_parent().get_parent().get_node("Thump").play()
+						
 		elif Input.is_action_just_pressed(next_letter) and flip_dir == FlipDirs.RIGHT:
+			get_node("LetterSquare" + str(curr_letter + 1)).color = Color(0, 1, 0, 1)
 			flip_dir = FlipDirs.UP
-			$Sprite.rotation_degrees = 0
+			sprites.rotation_degrees = 0
+			
+			update_score(500 * flip_count / 2)
+			flip_count += 1
 			
 			curr_letter += 1
 			next_letter = letters[curr_letter % len(letters)]
+			get_parent().get_parent().get_node("Thump").play()
 			picked_flip_letters_flag = false
 
 	else:
@@ -252,6 +368,7 @@ func handle_flips():
 		$FlipLabel.text = ""
 				
 func game_logic(delta):
+	check_end_manual()
 	handle_falling()
 	handle_ramp()
 	handle_landed_ramp()
@@ -270,6 +387,12 @@ func game_logic(delta):
 func _physics_process(delta):
 	_debug(delta)
 	
+	if state == States.MOVING or state == States.MANUAL or is_on_floor_ray() and state == States.ONRAMP:
+		if not get_parent().get_parent().get_node("Skate").playing:
+			get_parent().get_parent().get_node("Skate").play()
+	else:
+		get_parent().get_parent().get_node("Skate").stop()
+	
 	get_input()
 	if state != States.STATIONARY and state != States.WIPEOUT:
 		game_logic(delta)
@@ -278,3 +401,7 @@ func _physics_process(delta):
 func _on_PushingCooldown_timeout():
 	if state == States.PUSHING:
 		pass
+
+
+func _on_TimeScore_timeout():
+	update_score(50)

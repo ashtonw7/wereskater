@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/274941__theshaggyfreak__thump3.mp3-2e117e172d0fcbc9f0b6016f523c2cbc.mp3str"
+
+[deps]
+
+source_file="res://Assets/Sounds/274941__theshaggyfreak__thump3.mp3"
+dest_files=[ "res://.import/274941__theshaggyfreak__thump3.mp3-2e117e172d0fcbc9f0b6016f523c2cbc.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

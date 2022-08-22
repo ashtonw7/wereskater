@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Environment/LevelEnd.gd" type="Script" id=1]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 10, 130.5 )
+
+[node name="LevelEnd" type="Area2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( 0, 120.5 )
+shape = SubResource( 1 )
+script = ExtResource( 1 )
+
+[connection signal="body_entered" from="." to="CollisionShape2D" method="_on_WerewolfMode_body_entered"]

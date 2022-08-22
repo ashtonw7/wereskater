@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/515692__acekat13x31__adriana-lopez-skateboard-wheels.mp3-3ac0323ab07a0289e3ffacd8043aa43c.mp3str"
+
+[deps]
+
+source_file="res://Assets/Sounds/515692__acekat13x31__adriana-lopez-skateboard-wheels.mp3"
+dest_files=[ "res://.import/515692__acekat13x31__adriana-lopez-skateboard-wheels.mp3-3ac0323ab07a0289e3ffacd8043aa43c.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

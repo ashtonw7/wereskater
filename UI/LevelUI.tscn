@@ -1,0 +1,79 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://UI/Restart.tscn" type="PackedScene" id=1]
+[ext_resource path="res://UI/Menu.tscn" type="PackedScene" id=2]
+[ext_resource path="res://UI/Score.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Assets/Fonts/SK8ORDYE.TTF" type="DynamicFontData" id=4]
+[ext_resource path="res://Assets/Fonts/MAYHEM-Regular.otf" type="DynamicFontData" id=5]
+[ext_resource path="res://UI/LevelUI.gd" type="Script" id=6]
+
+[sub_resource type="DynamicFont" id=1]
+size = 100
+outline_size = 2
+outline_color = Color( 0, 0, 0, 1 )
+font_data = ExtResource( 4 )
+
+[sub_resource type="DynamicFont" id=2]
+size = 100
+outline_size = 2
+outline_color = Color( 0, 0, 0, 1 )
+font_data = ExtResource( 5 )
+
+[sub_resource type="DynamicFont" id=3]
+size = 50
+font_data = ExtResource( 5 )
+
+[sub_resource type="DynamicFont" id=4]
+size = 50
+font_data = ExtResource( 5 )
+
+[node name="CanvasLayer" type="CanvasLayer"]
+script = ExtResource( 6 )
+
+[node name="Score" parent="." instance=ExtResource( 3 )]
+margin_left = 33.0
+margin_top = 33.0
+margin_right = 73.0
+margin_bottom = 47.0
+
+[node name="LevelComplete" type="Label" parent="."]
+visible = false
+anchor_right = 0.445
+anchor_bottom = 0.5
+margin_left = 7.0
+margin_top = 63.0
+margin_right = 568.32
+margin_bottom = 136.0
+custom_fonts/font = SubResource( 1 )
+text = "LEVEL CoMPLETE
+"
+align = 1
+
+[node name="FinalScore" type="Label" parent="."]
+visible = false
+margin_left = 1.0
+margin_top = 185.0
+margin_right = 1025.0
+margin_bottom = 305.0
+custom_fonts/font = SubResource( 2 )
+text = "Score"
+align = 1
+
+[node name="Restart" parent="." instance=ExtResource( 1 )]
+visible = false
+margin_left = 167.0
+margin_top = 333.0
+margin_right = 452.0
+margin_bottom = 445.0
+custom_fonts/font = SubResource( 3 )
+
+[node name="Menu" parent="." instance=ExtResource( 2 )]
+visible = false
+margin_left = 559.0
+margin_top = 333.0
+margin_right = 844.0
+margin_bottom = 441.0
+custom_fonts/font = SubResource( 4 )
+
+[connection signal="pressed" from="Restart" to="." method="_on_Restart_pressed"]
+[connection signal="pressed" from="Menu" to="." method="_on_Menu_pressed"]
